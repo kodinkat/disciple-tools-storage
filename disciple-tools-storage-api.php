@@ -118,6 +118,25 @@ class Disciple_Tools_Storage_API {
     public static function fetch_option_connection_objs(): object {
         $option = get_option( self::$option_dt_storage_connection_objects );
 
+        // If multisite, then ensure specified connection configuration is always included.
+        if ( is_multisite() && !empty( get_site_option( 'dt_storage_multisite_connection_object', [] ) ) ) {
+            $multisite_connection_objects = get_site_option( 'dt_storage_multisite_connection_object', [] );
+
+            // Check if there is a valid, specified multisite storage connection.
+            if ( isset( $multisite_connection_objects['id'], $multisite_connection_objects['enabled'], $multisite_connection_objects['name'], $multisite_connection_objects['type'] ) && boolval( $multisite_connection_objects['enabled'] ) ) {
+                $type = $multisite_connection_objects['type'];
+
+                // Ensure identified connection contains a valid type configuration.
+                if ( isset( $multisite_connection_objects[ $type ]['access_key'], $multisite_connection_objects[ $type ]['secret_access_key'], $multisite_connection_objects[ $type ]['region'], $multisite_connection_objects[ $type ]['endpoint'], $multisite_connection_objects[ $type ]['bucket'] ) ) {
+
+                    // Finally, update option, with identified multisite connection.
+                    $decoded_option = json_decode( !empty( $option ) ? $option : '{}' );
+                    $decoded_option->{$multisite_connection_objects['id']} = (object) $multisite_connection_objects;
+                    $option = json_encode( $decoded_option );
+                }
+            }
+        }
+
         if ( ! empty( $option ) ) {
 
             $connection_objs = [];
