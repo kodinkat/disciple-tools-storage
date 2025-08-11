@@ -7,10 +7,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 class DT_Storage {
 
     /**
+     * @param string $connection_id
+     * @return bool
+     */
+    public static function update_default_connection_id( string $connection_id ): bool {
+        return update_option( 'dt_storage_connection_id', $connection_id );
+    }
+
+    /**
+     * @return string
+     */
+    public static function get_default_connection_id(): string {
+        $storage_connection_id = dt_get_option( 'dt_storage_connection_id' );
+
+        // Default to multisite global setting, if available; otherwise revert to local settings.
+        if ( is_multisite() && !empty( get_site_option( 'dt_storage_multisite_connection_object', [] ) ) ) {
+            $multisite_connection_objects = get_site_option( 'dt_storage_multisite_connection_object', [] );
+
+            // Check if there is a valid, specified multisite storage connection.
+            if ( isset( $multisite_connection_objects['id'], $multisite_connection_objects['enabled'] ) && boolval( $multisite_connection_objects['enabled'] ) ) {
+
+                // Switch storage connection id to multisite global setting, if currently empty.
+                if ( empty( $storage_connection_id ) ) {
+                    $storage_connection_id = $multisite_connection_objects['id'];
+                    self::update_default_connection_id( $storage_connection_id );
+                }
+            }
+        }
+
+        return $storage_connection_id;
+    }
+
+    /**
      * @return object|null
      */
     private static function get_connection(){
-        $storage_connection_id = dt_get_option( 'dt_storage_connection_id' );
+        $storage_connection_id = self::get_default_connection_id();
         if ( empty( $storage_connection_id ) ) {
             return null;
         }
