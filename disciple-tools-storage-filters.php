@@ -256,7 +256,7 @@ function dt_storage_connections_obj_upload( $response, $storage_connection_id, $
                     $bucket = $config['bucket'];
 
                     //Create a folder for the current site in case a bucket is shared between multiple sites.
-                    $dt_site_id = get_option( 'dt_site_id' );
+                    $dt_site_id = dt_site_id();
                     $site_key = substr( $dt_site_id, 0, 30 );
 
                     // Ensure duplicate site id prefixes are handled accordingly.
