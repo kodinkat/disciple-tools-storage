@@ -20,6 +20,11 @@ class DT_Storage {
     public static function get_default_connection_id(): string {
         $storage_connection_id = dt_get_option( 'dt_storage_connection_id' );
 
+        // Return if a valid storage connection id is found.
+        if ( !empty( $storage_connection_id ) ) {
+            return $storage_connection_id;
+        }
+
         // Default to multisite global setting, if available; otherwise revert to local settings.
         if ( is_multisite() && !empty( get_site_option( 'dt_storage_multisite_connection_object', [] ) ) ) {
             $multisite_connection_objects = get_site_option( 'dt_storage_multisite_connection_object', [] );
