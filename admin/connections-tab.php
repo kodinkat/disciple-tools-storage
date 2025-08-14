@@ -76,7 +76,8 @@ class Disciple_Tools_Storage_Tab_Connections {
                 'dt_endpoint_validate_connection' => Disciple_Tools_Storage_API::fetch_endpoint_validate_connection(),
                 'connection_types' => Disciple_Tools_Storage_API::list_supported_connection_types(),
                 'connection_objs' => Disciple_Tools_Storage_API::fetch_option_connection_objs(),
-                'previous_updated_connection_obj'  => $this->fetch_previous_updated_connection_obj()
+                'previous_updated_connection_obj'  => $this->fetch_previous_updated_connection_obj(),
+                'is_multisite' => is_multisite() ? '1' : '0'
             )
         );
     }

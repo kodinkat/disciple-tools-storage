@@ -144,6 +144,7 @@ jQuery(function ($) {
   }
 
   function handle_connection_type_select( selected_type, connection_obj = null ) {
+    const is_multisite = window.dt_storage.is_multisite === '1';
     const connection_types = window.dt_storage.connection_types;
     const connection_type_details = $('#m_main_col_connection_type_details');
     const connection_type_details_content = $('#m_main_col_connection_type_details_content');
@@ -166,11 +167,20 @@ jQuery(function ($) {
             if (connection_obj && connection_obj[selected_type]) {
               connection_type_refresh = function() {
                 const type = connection_obj[selected_type];
+                const secret_access_key = $('#connection_type_s3_secret_access_key');
+
                 $('#connection_type_s3_access_key').val( type['access_key'] );
-                $('#connection_type_s3_secret_access_key').val( type['secret_access_key'] );
+                $(secret_access_key).val( type['secret_access_key'] );
                 $('#connection_type_s3_region').val( type['region'] );
                 $('#connection_type_s3_bucket').val( type['bucket'] );
                 $('#connection_type_s3_endpoint').val( type['endpoint'] );
+
+                // Handle any/all multisite specific tasks.
+                if ( is_multisite ) {
+                  if ( connection_obj?.source === 'multisite' ) {
+                    $(secret_access_key).parent().parent().remove();
+                  }
+                }
               };
             }
 
@@ -275,6 +285,7 @@ jQuery(function ($) {
     try {
 
       // Fetch the specified credentials.
+      const id = $('#m_main_col_connection_manage_id').val();
       const access_key = $('#connection_type_s3_access_key').val();
       const secret_access_key = $('#connection_type_s3_secret_access_key').val();
       const region = $('#connection_type_s3_region').val();
@@ -283,6 +294,7 @@ jQuery(function ($) {
 
       // Request backend connection validation test.
       validate_connection_details({
+          'connection_id': id,
           'connection_type_api': 's3',
           's3': {
             'access_key': access_key,

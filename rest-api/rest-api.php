@@ -25,6 +25,22 @@ class Disciple_Tools_Storage_Endpoints
 
         $params = $request->get_params();
         if ( isset( $params['connection_type_api'], $params[ $params['connection_type_api'] ] ) ) {
+
+            // If multisite, ensure secret access key is inserted.
+            if ( is_multisite() ) {
+                if ( isset( $params['connection_id'] ) && empty( $params[ $params['connection_type_api'] ]['secret_access_key'] ) ) {
+
+                    // Next, attempt to determine actual source origins for identified connection id.
+                    $connection_obj = Disciple_Tools_Storage_API::fetch_option_connection_obj( $params['connection_id'] );
+                    if ( isset( $connection_obj->source ) && $connection_obj->source === 'multisite' ) {
+
+                        // If identified as a multisite setting, then insert secret access key, accordingly.
+                        $params[ $params['connection_type_api'] ]['secret_access_key'] = $connection_obj->{ $connection_obj->type }->secret_access_key;
+                    }
+                }
+            }
+
+            // Proceed with connection verification.
             $response['valid'] = DT_Storage::validate_connection_details( $params['connection_type_api'], $params[ $params['connection_type_api'] ] );
         }
 

@@ -129,6 +129,9 @@ class Disciple_Tools_Storage_API {
                 // Ensure identified connection contains a valid type configuration.
                 if ( isset( $multisite_connection_objects[ $type ]['access_key'], $multisite_connection_objects[ $type ]['secret_access_key'], $multisite_connection_objects[ $type ]['region'], $multisite_connection_objects[ $type ]['endpoint'], $multisite_connection_objects[ $type ]['bucket'] ) ) {
 
+                    // Indicate to downstream users, the origins of connection object.
+                    $multisite_connection_objects['source'] = 'multisite';
+
                     // Finally, update option, with identified multisite connection.
                     $decoded_option = json_decode( !empty( $option ) ? $option : '{}' );
                     $decoded_option->{$multisite_connection_objects['id']} = (object) $multisite_connection_objects;
